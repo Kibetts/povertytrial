@@ -2,7 +2,7 @@ alembic
 aniso8601
 bcrypt
 blinker
-click7
+click
 dnspython
 email-validator
 Faker
