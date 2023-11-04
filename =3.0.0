@@ -1,0 +1,7 @@
+Collecting werkzeug
+  Obtaining dependency information for werkzeug from https://files.pythonhosted.org/packages/c3/fc/254c3e9b5feb89ff5b9076a23218dafbc99c96ac5941e900b71206e6313b/werkzeug-3.0.1-py3-none-any.whl.metadata
+  Using cached werkzeug-3.0.1-py3-none-any.whl.metadata (4.1 kB)
+Requirement already satisfied: MarkupSafe>=2.1.1 in /home/moringa/.local/share/virtualenvs/poverty_project_trial-iNEHIWsc/lib/python3.10/site-packages (from werkzeug) (2.1.3)
+Using cached werkzeug-3.0.1-py3-none-any.whl (226 kB)
+Installing collected packages: werkzeug
+Successfully installed werkzeug-3.0.1
