@@ -1,4 +1,4 @@
-alembicgit 
+alembic
 aniso8601
 bcrypt
 blinker
