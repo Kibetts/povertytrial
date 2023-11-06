@@ -15,7 +15,7 @@ from models import *
 import bcrypt
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] =os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_DATABASE_URI'] ="postgresql://skillhunter:AAl15UpE0pn5nZYm0X1ZcvrBfGIdhy88@dpg-cl4gmfpnovjs739jgpgg-a.oregon-postgres.render.com/skillhunter_hkko"
 app.config['JWT_SECRET_KEY'] = 'Tingatales1'
 app.config['SECRET_KEY'] = 'Tingatales1'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -219,7 +219,8 @@ class JobPostResource(Resource):
                 salary=form.salary.data,
                 location=form.location.data,
                 type=form.type.data,
-                image=form.image.data.read() if form.image.data else None
+                image=form.image.data.read() if form.image.data else None,
+                employer=current_user 
             )
             db.session.add(new_job)
             db.session.commit()
