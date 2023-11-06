@@ -21,7 +21,7 @@ Jinja2
 Mako
 MarkupSafe
 Pillow
-
+flask_cors
 PyJWT
 python-dateutil
 pytz
