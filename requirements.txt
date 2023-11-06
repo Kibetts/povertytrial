@@ -23,6 +23,7 @@ MarkupSafe
 Pillow
 flask_cors
 PyJWT
+psycopg2
 python-dateutil
 pytz
 six
