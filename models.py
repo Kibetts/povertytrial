@@ -122,11 +122,10 @@ class Job(db.Model):
     location = db.Column(db.String)
     type = db.Column(db.String)
     image = db.Column(db.String)
-    # employer = db.Column(db.String)
     employer_id = db.Column(db.Integer, db.ForeignKey('employers.id'))
     employer = db.relationship('Employer', backref='jobs')
 
-    def __init__(self, title, description, salary, location, type, image, employer):
+    def __init__(self, title, description, salary, location, type, image, employer=None):
         self.title = title
         self.description = description
         self.salary = salary
@@ -136,8 +135,8 @@ class Job(db.Model):
         self.employer = employer
 
     def __repr__(self):
-        return f'<Job {self.id} {self.title}>'
-    
+        return f'<Job {self.id} {self.title}'
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -146,8 +145,8 @@ class Job(db.Model):
             'salary': self.salary,
             'location': self.location,
             'type': self.type,
-            'employer': self.employer
-            # 'image': self.image
+            'employer': self.employer.to_dict() if self.employer else None,
+            'image': self.image  
         }
 
 class Rating(db.Model):
