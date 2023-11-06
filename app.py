@@ -1,3 +1,4 @@
+import os
 from forms import JobForm, EmployeeApplicationForm
 from flask import Flask, request, make_response, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt, jwt_required, verify_jwt_in_request
@@ -14,7 +15,7 @@ from models import *
 import bcrypt
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://skillhunter:FsKRNEkDBkj7odIO6J0pi5r5cEA6wp7L@dpg-cl4cj33iu76s73b7q2f0-a.oregon-postgres.render.com/skillhunter_xrpo'
+app.config['SQLALCHEMY_DATABASE_URI'] ='postgresql://skillhunter:BPiPfaKSDFj4OjzkhSIjrhWajhLMaPRL@dpg-cl4dpobiu76s73b83r20-a.oregon-postgres.render.com/skillhunter_3lkd'
 app.config['JWT_SECRET_KEY'] = 'Tingatales1'
 app.config['SECRET_KEY'] = 'Tingatales1'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
