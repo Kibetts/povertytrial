@@ -21,7 +21,7 @@ Jinja2
 Mako
 MarkupSafe
 Pillow
-psycopg2
+
 PyJWT
 python-dateutil
 pytz

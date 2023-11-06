@@ -2,6 +2,10 @@ from forms import JobForm, EmployeeApplicationForm
 from flask import Flask, request, make_response, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt, jwt_required, verify_jwt_in_request
 from flask_restful import Api, Resource, reqparse
+from datetime import datetime
+from flask_cors import CORS
+
+
 # from flask_uploads import UploadSet, configure_uploads, IMAGES
 # from flask_wtf.csrf import CSRFProtect
 # from werkzeug.utils import secure_filename
@@ -10,10 +14,12 @@ from models import *
 import bcrypt
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://brayan:2vGSUcIdedE8SSyINO6cJhlz31APGbCE@dpg-cl37ci0t3kic73d8e7ag-a.oregon-postgres.render.com/skillhunter'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://skillhunter:jBI2Egh7OkFh6BDQV2fpl9PGdZtszzf7@dpg-cl4bkfauuipc738u60f0-a.oregon-postgres.render.com/skillhunter_1juj'
 app.config['JWT_SECRET_KEY'] = 'Tingatales1'
 app.config['SECRET_KEY'] = 'Tingatales1'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+CORS(app)
 # uploaded_documents = UploadSet('documents', extensions=('pdf', 'doc', 'docx', 'txt'))
 # app.config['UPLOADED_DOCUMENTS_DEST'] = 'path_to_upload_folder'  # to replace with the actual folder path on render
 # app.config['UPLOADED_DOCUMENTS_URL'] = 'url_to_upload_folder' # to replace with the actual folder path on render
@@ -21,6 +27,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 def get_access_token():
     auth_header = request.headers.get("Authorization")
+    print("Authorization Header:", auth_header)   ##check if auth header is retrieved
 
     if auth_header and auth_header.startswith("Bearer "):
         return auth_header[7:]
@@ -58,6 +65,7 @@ def add_claims_to_jwt(identity):
         return {'role': 'employee'}
     elif isinstance(identity, Employer):
         return {'role': 'employer'}
+
 
 
 
@@ -180,17 +188,20 @@ api.add_resource(EmployerLogin, '/employers/login')
 
               ######################Resource for employers to post jobs##########################
 class JobPostResource(Resource):
+    @jwt_required()
     def post(self):
         form = JobForm()
         parser = reqparse.RequestParser()
         parser.add_argument('access_token', type=str, location='headers')  # You may need to adjust this header
         args = parser.parse_args()
 
+        # print("Access Token:", args['access_token'])  # check if access token is returned
+
         if not args['access_token']:
             return {'error': 'Access token is required'}, 400
 
         current_user = get_current_user(args['access_token'])
-
+        print("current user", current_user)
         if not current_user:
             return {'error': 'Invalid access token'}, 401
 
@@ -395,6 +406,7 @@ class RatingResource(Resource):
 
     def post(self):
         data = request.get_json()
+        data['date'] = datetime.now()
         new_rating = Rating(**data)
         db.session.add(new_rating)
         db.session.commit()
@@ -450,3 +462,6 @@ with app.app_context():
 
 if __name__ == '__main__':
     app.run()
+
+
+####postgresql://brayan:2vGSUcIdedE8SSyINO6cJhlz31APGbCE@dpg-cl37ci0t3kic73d8e7ag-a.oregon-postgres.render.com/skillhunter

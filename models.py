@@ -1,8 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
-from wtforms import  fields, validators 
-from wtforms.validators import Length, Email
 from sqlalchemy.orm import relationship
+from datetime import datetime
 import bcrypt
 
 import re 
@@ -21,14 +20,6 @@ class Employee(db.Model):
     skills = db.Column(db.String(300))
     experience = db.Column(db.Integer)
 
-    def __init__(self, email, username, password, name=None, skills=None, experience=None):
-        self.name = name
-        self.email = email
-        self.username = username
-        self.password = password
-        self.password_hash = self._hash_password(password)
-        self.skills = skills
-        self.experience = experience
 
     def __repr__(self):
         return f'<Employee {self.id} {self.name} {self.username} {self.email} {self.skills} {self.password} {self.experience}>'
@@ -131,16 +122,18 @@ class Job(db.Model):
     location = db.Column(db.String)
     type = db.Column(db.String)
     image = db.Column(db.String)
+    # employer = db.Column(db.String)
     employer_id = db.Column(db.Integer, db.ForeignKey('employers.id'))
     employer = db.relationship('Employer', backref='jobs')
 
-    def __init__(self, title, description, salary, location, type, image):
+    def __init__(self, title, description, salary, location, type, image, employer):
         self.title = title
         self.description = description
         self.salary = salary
         self.location = location
         self.type = type
         self.image = image
+        self.employer = employer
 
     def __repr__(self):
         return f'<Job {self.id} {self.title}>'
@@ -152,7 +145,8 @@ class Job(db.Model):
             'description': self.description,
             'salary': self.salary,
             'location': self.location,
-            'type': self.type
+            'type': self.type,
+            'employer': self.employer
             # 'image': self.image
         }
 
@@ -161,7 +155,7 @@ class Rating(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer)
-    date = db.Column(db.DateTime)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
 
     employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
     employee = relationship('Employee', backref='given_ratings')
