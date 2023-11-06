@@ -63,12 +63,11 @@ def user_identity_lookup(user):
     return user.id
 
 @jwt.user_lookup_loader
-def add_claims_to_jwt(identity):
+def add_claims_to_jwt(identity, data):
     if isinstance(identity, Employee):
-        return {'role': 'employee'}
+        return {'role': 'employee'} 
     elif isinstance(identity, Employer):
         return {'role': 'employer'}
-
 
 
 
