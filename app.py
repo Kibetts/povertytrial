@@ -14,7 +14,7 @@ from models import *
 import bcrypt
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://skillhunter:jBI2Egh7OkFh6BDQV2fpl9PGdZtszzf7@dpg-cl4bkfauuipc738u60f0-a.oregon-postgres.render.com/skillhunter_1juj'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://skillhunter:FsKRNEkDBkj7odIO6J0pi5r5cEA6wp7L@dpg-cl4cj33iu76s73b7q2f0-a.oregon-postgres.render.com/skillhunter_xrpo'
 app.config['JWT_SECRET_KEY'] = 'Tingatales1'
 app.config['SECRET_KEY'] = 'Tingatales1'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
