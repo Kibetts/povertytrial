@@ -31,4 +31,4 @@ SQLAlchemy
 typing_extensions
 Werkzeug
 WTForms
-psycopg2-binary
+
