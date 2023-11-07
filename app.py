@@ -8,7 +8,7 @@ from models import *
 import bcrypt
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] ="postgresql://skillhunter:AAl15UpE0pn5nZYm0X1ZcvrBfGIdhy88@dpg-cl4gmfpnovjs739jgpgg-a.oregon-postgres.render.com/skillhunter_hkko"
+app.config['SQLALCHEMY_DATABASE_URI'] ="postgres://skillhunter:AAl15UpE0pn5nZYm0X1ZcvrBfGIdhy88@dpg-cl4gmfpnovjs739jgpgg-a.oregon-postgres.render.com/skillhunter_hkko"
 app.config['JWT_SECRET_KEY'] = 'Tingatales1'
 app.config['SECRET_KEY'] = 'Tingatales1'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
