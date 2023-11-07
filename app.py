@@ -1,33 +1,20 @@
-import os
 from forms import JobForm, EmployeeApplicationForm
 from flask import Flask, request, make_response, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt, jwt_required, verify_jwt_in_request
 from flask_restful import Api, Resource, reqparse
 from datetime import datetime
 from flask_cors import CORS
-
-
-# from flask_uploads import UploadSet, configure_uploads, IMAGES
-# from flask_wtf.csrf import CSRFProtect
-# from werkzeug.utils import secure_filename
-
 from models import *
 import bcrypt
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] ="postgresql://skillhunter:AAl15UpE0pn5nZYm0X1ZcvrBfGIdhy88@dpg-cl4gmfpnovjs739jgpgg-a.oregon-postgres.render.com/skillhunter_hkko"
+app.config['SQLALCHEMY_DATABASE_URI'] ="sqlite:///database.db"
 app.config['JWT_SECRET_KEY'] = 'Tingatales1'
 app.config['SECRET_KEY'] = 'Tingatales1'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 #postgres://skillhunter:AAl15UpE0pn5nZYm0X1ZcvrBfGIdhy88@dpg-cl4gmfpnovjs739jgpgg-a.oregon-postgres.render.com/skillhunter_hkko
-
 CORS(app)
-# uploaded_documents = UploadSet('documents', extensions=('pdf', 'doc', 'docx', 'txt'))
-# app.config['UPLOADED_DOCUMENTS_DEST'] = 'path_to_upload_folder'  # to replace with the actual folder path on render
-# app.config['UPLOADED_DOCUMENTS_URL'] = 'url_to_upload_folder' # to replace with the actual folder path on render
-# configure_uploads(app, uploaded_documents)
-
 def get_access_token():
     auth_header = request.headers.get("Authorization")
     print("Authorization Header:", auth_header)   ##check if auth header is retrieved
@@ -36,7 +23,6 @@ def get_access_token():
         return auth_header[7:]
     else:
         return None
-
 
 api = Api(app)
 db.init_app(app)
@@ -63,13 +49,11 @@ def user_identity_lookup(user):
     return user.id
 
 @jwt.user_lookup_loader
-def add_claims_to_jwt(identity, data):
+def add_claims_to_jwt(identity, _):
     if isinstance(identity, Employee):
         return {'role': 'employee'} 
     elif isinstance(identity, Employer):
         return {'role': 'employer'}
-
-
 
 def role_required(role):
     def wrapper(fn):
@@ -106,7 +90,6 @@ class EmployeeRegister(Resource):
         db.session.commit()
         return {'message': 'Employee created'}, 201
 
-
 class EmployerRegister(Resource):
     def post(self):
         data = request.get_json()
@@ -130,8 +113,6 @@ class EmployerRegister(Resource):
         db.session.commit()
         return {'message': 'Employer created'}, 201
 
-
-
 class EmployeeLogin(Resource):
     def post(self):
         data = request.get_json()
@@ -146,7 +127,7 @@ class EmployeeLogin(Resource):
 
         if employee and bcrypt.checkpw(password.encode('utf-8'), employee.password.encode('utf-8')):
             access_token = create_access_token(identity=employee)
-            return {'access_token': access_token}
+            return {'access_token': access_token, 'email': employee.email, 'username': employee.username}
 
         return {'error': 'Invalid credentials'}, 401
 
@@ -164,10 +145,9 @@ class EmployerLogin(Resource):
 
         if employer and bcrypt.checkpw(password.encode('utf-8'), employer.password.encode('utf-8')):
             access_token = create_access_token(identity=employer)
-            return {'access_token': access_token}
+            return {'access_token': access_token, 'email': employer.email, 'username': employer.username}
 
         return {'error': 'Invalid credentials'}, 401
-
 
 def find_employee(email, username):
     if email:
@@ -176,6 +156,21 @@ def find_employee(email, username):
         return Employee.query.filter_by(username=username).first()
     return None
 
+class EmployeeSearchResource(Resource):
+    def get(self):
+        email = request.args.get('email')
+        username = request.args.get('username')
+        
+        if not email and not username:
+            return {'error': 'Email or username is required for the search'}, 400
+
+        employee = find_employee(email, username)
+
+        if employee:
+            return employee.to_dict()
+
+        return {'error': 'Employee not found'}, 404
+
 
 def find_employer(email, username):
     if email:
@@ -183,10 +178,68 @@ def find_employer(email, username):
     elif username:
         return Employer.query.filter_by(username=username).first()
     return None
+
+class EmployerSearchResource(Resource):
+    def get(self):
+        email = request.args.get('email')
+        username = request.args.get('username')
+
+        if not email and not username:
+            return {'error': 'Email or username is required for the search'}, 400
+
+        employer = find_employer(email, username)
+
+        if employer:
+            return employer.to_dict()
+
+        return {'error': 'Employer not found'}, 404
+
 api.add_resource(EmployeeRegister, '/employees/register')
 api.add_resource(EmployerRegister, '/employers/register')
 api.add_resource(EmployeeLogin, '/employees/login')
 api.add_resource(EmployerLogin, '/employers/login')
+api.add_resource(EmployeeSearchResource, '/employees/search')
+api.add_resource(EmployerSearchResource, '/employers/search')
+
+
+class CompanyProfileResource(Resource):
+    def get(self, employer_id):
+        employer = Employer.query.get(employer_id)
+        if not employer:
+            return {'error': 'Employer not found'}, 404
+
+        if not employer.company_profile:
+            return {'error': 'Company profile not found for this employer'}, 404
+
+        # Access the company profile in the list and convert it to a dictionary
+        company_profile = employer.company_profile[0].to_dict()
+
+        return company_profile
+
+api.add_resource(CompanyProfileResource, '/employers/<int:employer_id>/company_profile')
+
+
+class EmployerApplicantsResource(Resource):
+    @jwt_required()
+    def get(self, employer_id):
+        employer = Employer.query.get(employer_id)
+        if not employer:
+            return {'error': 'Employer not found'}, 404
+
+        jobs = Job.query.filter_by(employer_id=employer_id).all()
+        if not jobs:
+            return {'applicants': []}
+
+        applicants = []
+        for job in jobs:
+            job_applications = EmployeeApplication.query.filter_by(job_id=job.id).all()
+            for application in job_applications:
+                applicants.append(application.to_dict())
+
+        return {'applicants': applicants}
+
+api.add_resource(EmployerApplicantsResource, '/employers/<int:employer_id>/applicants')
+
 
               ######################Resource for employers to post jobs##########################
 class JobPostResource(Resource):
@@ -279,8 +332,6 @@ class EmployeeApplicationResource(Resource):
 
         except Exception as e:
             return {'error': 'Error submitting the application'}, 500
-
-
 
 api.add_resource(JobPostResource, '/employers/post_job')
 api.add_resource(EmployeeApplicationResource, '/employees/apply/<int:job_id>')
@@ -467,4 +518,3 @@ if __name__ == '__main__':
     app.run()
 
 
-####postgresql://brayan:2vGSUcIdedE8SSyINO6cJhlz31APGbCE@dpg-cl37ci0t3kic73d8e7ag-a.oregon-postgres.render.com/skillhunter

@@ -1,3 +1,4 @@
+from base64 import b64encode
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from sqlalchemy.orm import relationship
@@ -19,6 +20,7 @@ class Employee(db.Model):
     password_hash = db.Column(db.String)
     skills = db.Column(db.String(300))
     experience = db.Column(db.Integer)
+    avatar = db.Column(db.String(255))
 
 
     def __repr__(self):
@@ -32,6 +34,7 @@ class Employee(db.Model):
             'email': self.email,
             'skills': self.skills,
             'experience': self.experience,
+             'avatar': self.avatar
         }
     
     def _hash_password(self, password):
@@ -146,7 +149,7 @@ class Job(db.Model):
             'location': self.location,
             'type': self.type,
             'employer': self.employer.to_dict() if self.employer else None,
-            'image': self.image  
+            'image': b64encode(self.image).decode('utf-8') if self.image else None 
         }
 
 class Rating(db.Model):
@@ -195,6 +198,21 @@ class CompanyProfile(db.Model):
     primary_contact_email = db.Column(db.String)
     primary_contact_phone = db.Column(db.String)
 
+    def to_dict(self):
+        return {
+        'id': self.id,
+        'employer_id': self.employer_id,
+        'business_industry': self.business_industry,
+        'employee_size': self.employee_size, 
+        'base_currency': self.base_currency,
+        'continent': self.continent,
+        'country': self.country,
+        'city': self.city,
+        'address': self.address,
+        'primary_contact_email': self.primary_contact_email,
+        'primary_contact_phone': self.primary_contact_phone
+        }
+
 
 class EmployeeApplication(db.Model):
     __tablename__ = 'employee_applications'
@@ -218,12 +236,4 @@ class EmployeeApplication(db.Model):
     major = db.Column(db.String)
     year_completed = db.Column(db.Integer)
 
-# class Document(db.Model):
-#     __tablename__ = 'documents'
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
-#     employee = db.relationship('Employee', backref='documents')
-#     filename = db.Column(db.String)
-#     file_type = db.Column(db.String)
-#     file_data = db.Column(db.LargeBinary)
