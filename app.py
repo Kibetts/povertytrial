@@ -127,7 +127,7 @@ class EmployeeLogin(Resource):
 
         if employee and bcrypt.checkpw(password.encode('utf-8'), employee.password.encode('utf-8')):
             access_token = create_access_token(identity=employee)
-            return {'access_token': access_token, 'email': employee.email, 'username': employee.username}
+            return {'access_token': access_token, 'email': employee.email, 'username': employee.username, 'id': employee.id}
 
         return {'error': 'Invalid credentials'}, 401
 
@@ -145,7 +145,7 @@ class EmployerLogin(Resource):
 
         if employer and bcrypt.checkpw(password.encode('utf-8'), employer.password.encode('utf-8')):
             access_token = create_access_token(identity=employer)
-            return {'access_token': access_token, 'email': employer.email, 'username': employer.username}
+            return {'access_token': access_token, 'email': employer.email, 'username': employer.username, 'id': employer.id}
 
         return {'error': 'Invalid credentials'}, 401
 
