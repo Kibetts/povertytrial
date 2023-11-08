@@ -338,7 +338,7 @@ api.add_resource(EmployeeApplicationResource, '/employees/apply/<int:job_id>')
 
 class Home(Resource):
     def get(self):
-        return 'Welcome to SkillHunter'
+        return 'Welcome to GigHunter'
 
 api.add_resource(Home, '/')
 
